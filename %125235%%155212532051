@@ -64,7 +64,7 @@ getgenv().Config = {
 	["Auto Sell Corrupted Fish"] = false,
 	["Tween Safe if have Items"] = false,
 	["Auto Yama"] = false,
-	["Auto Get Ghoul"] = false,
+	["Auto Get Ghoul"] = true,
 	["Summon Darkbeard"] = false,
 	["Auto Finish Train Quest"] = false,
 	["Auto Summon Rip Indra"] = false,
@@ -135,7 +135,7 @@ getgenv().Config = {
 	["Auto Trial Draco"] = false,
 	["Auto Repair Ur Ship"] = false,
 	["Ignore Attack Katakuri"] = false,
-	["Hop Server Get Ghoul"] = false,
+	["Hop Server Get Ghoul"] = true,
 	["Attack Soul Reaper"] = false,
 	["Kill All Boss"] = false,
 	["Stack Train With Trial Race"] = false,
@@ -219,5 +219,5 @@ getgenv().Config = {
 	["Hop Server Find Boss"] = false
 }
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
-getgenv().Key = "4223b6892da6ba1cc9e64e7a" 
+getgenv().Key = "a491b0cb30efc12186146381" 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
