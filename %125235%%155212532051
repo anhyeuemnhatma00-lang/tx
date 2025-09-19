@@ -1,4 +1,5 @@
 getgenv().Config = {
+	["Select Team"] = "Pirate"
 	["Auto Fire Shoot Heart Leviathan"] = false,
 	["Noti Profile"] = false,
 	["Teleport To Fruit"] = false,
