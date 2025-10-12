@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
-local rotateSpeed = 2000
+local rotateSpeed = 3000
 
 spawn(function()
     while true do
@@ -17,7 +17,7 @@ spawn(function()
     end
 end)
 
--- SCRIPT AUTO CHEST (NHẢY LIÊN TỤC KHI TWEEN)
+-- SCRIPT AUTO CHEST
 local plr = game.Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 
@@ -60,59 +60,101 @@ function FindNearestChestWithPriority(chestList, maxRadius)
     return nearest or backup
 end
 
+function CheckFistOfDarkness()
+    return plr.Backpack:FindFirstChild("Fist of Darkness") ~= nil
+end
+
+function ActivateRaidSummon()
+    local raidCD = game:GetService("Workspace").Map.CircleIsland.RaidSummon.Button.Main.ClickDetector
+    if raidCD then
+        fireclickdetector(raidCD)
+        print("Đã kích hoạt RaidSummon!")
+    end
+end
+
 function TweenToChest(part, speed)
     local char = plr.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-    if hrp and part and humanoid then
-        setNoclip(true)
-        local dist = (hrp.Position - part.Position).Magnitude
-        local time = dist / speed
-        local tween = TweenService:Create(
-            hrp,
-            TweenInfo.new(time, Enum.EasingStyle.Linear),
-            {CFrame = CFrame.new(part.Position)}
-        )
-        tween:Play()
-        -- Nhảy liên tục: ép Humanoid.Jump = true nhiều lần khi tween
-        local jumping = true
-        spawn(function()
-            local t0 = tick()
-            while jumping and tick() - t0 < time do
-                humanoid.Jump = true
-                wait(0.10)
+    if not (hrp and part and humanoid) then return false end
+    setNoclip(true)
+    local dist = (hrp.Position - part.Position).Magnitude
+    local time = dist / speed
+    local tween = TweenService:Create(
+        hrp,
+        TweenInfo.new(time, Enum.EasingStyle.Linear),
+        {CFrame = CFrame.new(part.Position)}
+    )
+    local stopTween = false
+
+    local jumping = true
+    spawn(function()
+        local t0 = tick()
+        while jumping and tick() - t0 < time and not stopTween do
+            humanoid.Jump = true
+            wait(0.10)
+        end
+    end)
+
+    -- Kiểm tra Fist of Darkness liên tục giữa lúc Tween
+    spawn(function()
+        while not stopTween do
+            if CheckFistOfDarkness() then
+                print("Phát hiện Fist of Darkness, dừng tween.")
+                tween:Cancel()
+                jumping = false
+                setNoclip(false)
+                ActivateRaidSummon()
+                stopTween = true
+                return
             end
-        end)
-        tween.Completed:Wait()
-        jumping = false
-        setNoclip(false)
-        return true
-    end
-    return false
+            wait(0.1)
+        end
+    end)
+
+    tween:Play()
+    tween.Completed:Wait()
+    jumping = false
+    setNoclip(false)
+    return not stopTween -- Trả về false nếu bị dừng tween giữa chừng
 end
 
 function AutoChestPriorityLoop()
     local chestList = FindAllChests()
+    local foundFist = false
     while #chestList > 0 do
+        if CheckFistOfDarkness() then
+            foundFist = true
+            print("Có Fist of Darkness, dừng loop!")
+            break
+        end
         local target = FindNearestChestWithPriority(chestList, 500)
         if not target then
             print("Không còn chest nào!")
             break
         end
         print("Tween tới chest:", target.Name)
-        if TweenToChest(target, 270) then
-            wait(0.2)
-            firetouchinterest(target, plr.Character.HumanoidRootPart, 0)
-            firetouchinterest(target, plr.Character.HumanoidRootPart, 1)
-            print("Đã nhặt chest:", target.Name)
-            wait(0.2)
+        local tweenDone = TweenToChest(target, 270)
+        if not tweenDone then
+            foundFist = true
+            print("Tween bị dừng do có Fist of Darkness!")
+            break
         end
+        wait(0.2)
+        firetouchinterest(target, plr.Character.HumanoidRootPart, 0)
+        firetouchinterest(target, plr.Character.HumanoidRootPart, 1)
+        print("Đã nhặt chest:", target.Name)
+        wait(0.2)
         for i, c in pairs(chestList) do
             if c == target then
                 table.remove(chestList, i)
                 break
             end
         end
+    end
+    if not foundFist then
+        print("Nhặt hết chest mà vẫn không có Fist of Darkness, tiến hành AutoHop.")
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/anhyeuemnhatma00-lang/tx/refs/heads/main/popless"))()
     end
 end
 
