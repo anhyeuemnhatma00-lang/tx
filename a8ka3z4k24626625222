@@ -1,4 +1,3 @@
--- SCRIPT XOAY NHÂN VẬT LIÊN TỤC QUANH TRỤC Y
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
