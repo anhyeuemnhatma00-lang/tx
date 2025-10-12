@@ -8,10 +8,10 @@ local PlaceId = game.PlaceId
 local CurrentJobId = game.JobId
 
 -- Cấu hình
-local MAX_PAGES = 5
+local MAX_PAGES = 10
 local PAGE_LIMIT = 25
 local PAGE_DELAY = 0.1
-local MIN_SLOTS = 1
+local MIN_SLOTS = 3
 
 local function urlencode(str)
     return string.gsub(str, "([^%w%-_.~])", function(c)
